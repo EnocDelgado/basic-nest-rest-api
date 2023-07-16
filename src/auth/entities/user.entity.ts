@@ -18,10 +18,7 @@ export class User {
     password: string;
 
     @Column('text')
-    name: string;
-
-    @Column('text')
-    lastName: string;
+    fullName: string;
 
     @Column('bool', {
         default: true

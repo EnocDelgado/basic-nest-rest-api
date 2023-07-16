@@ -1,25 +1,45 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { GetUser } from './decorator/gte-user.decorator';
+import { User } from './entities/user.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { RawHeader } from './decorator/raw-headers.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.register(createAuthDto);
+  create( @Body() createAuthDto: CreateUserDto ) {
+    return this.authService.register( createAuthDto );
   }
 
   @Post('login')
-  login(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.login(createAuthDto);
+  login( @Body() loginUserDto: LoginUserDto ) {
+    return this.authService.login( loginUserDto );
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Get('check-status')
+  checkStatus(
+    @GetUser() user: User
+  ) {
+    return this.authService.checkStatus( user );
+  }
+
+  @Get('users')
+  @UseGuards( AuthGuard() )
+  findUser(
+    // @Req() reuqest: Express.Request
+    @GetUser() user: User,
+    @RawHeader() rawHeaders: string[]
+  ) {
+    return {
+      ok: true,
+      user,
+      rawHeaders
+    }
   }
 
 }
